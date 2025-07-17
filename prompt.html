@@ -1,0 +1,757 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pembuat Prompt Gambar Gemini</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f0f2f5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        .container {
+            background-color: #ffffff;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            max-width: 700px;
+            width: 100%;
+            border: 1px solid #e0e0e0;
+        }
+        h1 {
+            color: #333;
+            margin-bottom: 25px;
+            text-align: center;
+            font-weight: 700;
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #555;
+            font-weight: 500;
+        }
+        select, input[type="text"] {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 20px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            box-sizing: border-box;
+            font-size: 16px;
+            background-color: #f9f9f9;
+            transition: border-color 0.3s ease;
+        }
+        select:focus, input[type="text"]:focus {
+            border-color: #6366f1; /* Indigo-500 */
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+        }
+        button {
+            width: 100%;
+            padding: 15px;
+            background-color: #6366f1; /* Indigo-500 */
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            box-shadow: 0 4px 10px rgba(99, 102, 241, 0.3);
+        }
+        button:hover {
+            background-color: #4f46e5; /* Indigo-600 */
+            transform: translateY(-2px);
+        }
+        #outputPrompt {
+            background-color: #e0f2fe; /* Light blue-100 */
+            padding: 15px;
+            border-radius: 8px;
+            font-size: 17px;
+            color: #1e40af; /* Dark blue-800 */
+            border: 1px solid #90cdf4; /* Blue-300 */
+            word-wrap: break-word;
+            line-height: 1.5;
+            min-height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            flex-grow: 1; /* Allow it to grow and take available space */
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        .output-container {
+            display: flex; /* Use flexbox for alignment */
+            align-items: center; /* Align items vertically */
+            gap: 10px; /* Space between the prompt and the button */
+            margin-top: 25px; /* Add margin to the top */
+        }
+        #copyButton {
+            width: auto; /* Allow button to size based on content */
+            padding: 12px 20px; /* Adjust padding for a smaller button */
+            font-size: 16px; /* Adjust font size */
+            box-shadow: none; /* Remove shadow for a cleaner look */
+            background-color: #4CAF50; /* Green color for copy button */
+        }
+        #copyButton:hover {
+            background-color: #45a049; /* Darker green on hover */
+            transform: translateY(0); /* No transform on hover for this button */
+        }
+        .checkbox-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        .checkbox-group label {
+            display: flex;
+            align-items: center;
+            margin-bottom: 0; /* Override default label margin */
+            cursor: pointer;
+            color: #555;
+            font-weight: 400;
+        }
+        .checkbox-group input[type="checkbox"] {
+            width: auto;
+            margin-right: 5px;
+            margin-bottom: 0; /* Override default input margin */
+            transform: scale(1.2); /* Make checkbox slightly larger */
+            accent-color: #6366f1; /* Set checkbox color */
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="text-3xl">Pembuat Prompt Gambar Gemini</h1>
+
+        <div class="form-group">
+            <label for="gender">1. Model:</label>
+            <select id="gender" class="rounded-lg">
+                <option value="wanita indonesia">Wanita Indonesia</option>
+                <option value="wanita cina">Wanita Cina</option>
+                <option value="pria indonesia">Pria Indonesia</option> 
+                <option value="pria cina">Pria Cina</option> 
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="appearance">2. Penampilan:</label>
+            <select id="appearance" class="rounded-lg">
+                <option value="cantik">Cantik</option>
+                <option value="ganteng">Ganteng</option>
+                <option value="gaya korea">Gaya korea</option>
+                <option value="Make up natural">Make up natural</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="skinColor">3. Warna Kulit:</label>
+            <select id="skinColor" class="rounded-lg">
+                <option value="">Tidak memilih</option>
+                <option value="dengan kulit cerah">Kulit cerah</option>
+                <option value="dengan kulit terang">Kulit terang</option>
+                <option value="dengan kulit sawo matang">Kulit sawo matang</option>
+                <option value="dengan kulit putih">Kulit putih</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="hairStyle">4. Gaya Rambut:</label>
+            <select id="hairStyle" class="rounded-lg" onchange="toggleHairColorDropdown()">
+                <option value="bob">Bob: rambut pendek di mana rambut dipotong rata di sekitar kepala, biasanya setinggi dagu atau sedikit di bawahnya.</option>
+                <option value="pixie cut">Pixie Cut: sangat pendek, biasanya dipotong di atas telinga dan tengkuk.</option>
+                <option value="long bob">Lob (Long Bob): Versi bob yang lebih panjang, seringkali mencapai bahu.</option>
+                <option value="rambut panjang lurus" selected>Rambut Panjang Lurus</option>
+                <option value="rambut panjang bergelombang">Rambut Panjang Bergelombang</option>
+                <option value="layered cut">Layered : dipotong dengan panjang yang bervariasi untuk menambah volume dan tekstur.</option>
+                <option value="shag">Shag: Gaya rambut berlapis dengan banyak tekstur, biasanya dengan poni</option>
+                <option value="poni">Poni (Bangs/Fringe): Rambut di dahi dipotong lebih pendek. Poni bisa lurus, samping, tirai (curtain bangs), atau berantakan.</option>
+                <option value="undercut">Undercut: Bagian bawah rambut dipotong sangat pendek atau dicukur, sementara bagian atasnya dibiarkan lebih panjang.</option>
+                <option value="Cornrows">Cornrows: Gaya mengepang di mana rambut dikepang sangat dekat dengan kulit kepala dalam barisan.</option>
+                <option value="Dreadlocks">Dreadlocks: Gaya rambut di mana helai rambut digulung atau dianyam menjadi lilitan atau gumpalan yang terpisah.</option>
+                <option value="Kepang">Kepang (Braids): Berbagai jenis kepang seperti kepang Prancis, kepang Belanda, kepang fishtail, dll.</option>
+                <option value="kuncir kuda">Kuncir Kuda (Ponytail): Gaya rambut sederhana di mana rambut diikat di bagian belakang kepala.</option>
+                
+                <optgroup label="Pria">
+                <option value="Pompadour">Pompadour: Gaya rambut pria di mana rambut disisir ke belakang dari dahi dan diangkat ke atas.</option>
+                <option value="Quiff">Quiff: Mirip dengan pompadour tetapi biasanya tidak terlalu bervolume dan lebih santai</option>
+                </optgroup>
+                
+                <optgroup label="Hijab">
+                <option value="Jilbab Segi Empat katun">Jilbab Segi Empat katun warna hitam</option>
+                <option value="Jilbab Segi Empat voal">Jilbab Segi Empat voal warna hitam</option>
+                <option value="Jilbab Segi Empat sifon">Jilbab Segi Empat sifon warna hitam</option>
+                <option value="Jilbab Segi Empat silk">Jilbab Segi Empat silk warna hitam</option>
+                <option value="Pashmina sederhana">Pashmina: selendang panjang dan lebar, biasanya terbuat dari bahan lembut seperti kasmir, viscose, atau katun</option>
+                <option value="Pashmina elegan">Pashmina: selendang panjang dan lebar, biasanya terbuat dari bahan lembut seperti kasmir, viscose, atau katun</option>
+                <option value="Hijab Instan polos">Hijab Instan polos warna hitam</option>
+                <option value="Hijab Instan berlayer">Hijab Instan berlayer warna hitam</option>
+                <option value="Hijab Bergo">Bergo: hijab instan yang khas dengan adanya "pet" atau bantalan di bagian dahi yang memberikan bentuk dan menutupi bagian pipi</option>
+                <option value="Hijab Khimar">Khimar: hijab yang menutupi kepala hingga menutupi dada dan punggung.</option>
+                <option value="Hijab Syria">Syria (Hijab Langsung): memiliki lubang wajah yang dijahit, memungkinkan pemakaian langsung tanpa peniti.</option>
+                <option value="Hijab Shawl">Shawl: kain persegi panjang yang lebih kecil dan umumnya digunakan sebagai pelengkap gaya</option>
+                <option value="Hijab Turban">Turban: kain dililitkan di sekitar kepala, seringkali tanpa menutupi leher</option>
+                </optgroup>
+            </select>
+        </div>
+
+        <div class="form-group" id="hairColorGroup">
+            <label for="hairColor">5. Warna Rambut:</label>
+            <select id="hairColor" class="rounded-lg">
+            <optgroup label="Nuansa Cokelat:">
+                <option value="Dark Espresso">Dark Espresso: Warna cokelat pekat yang kaya, berkilau, dan berdimensi, memberikan kesan mewah dan berkelas.
+                <option value="Mushroom Brown">Mushroom Brown: Warna cokelat yang dipadukan dengan abu-abu, menghasilkan rona keabu-abuan yang kalem, sederhana, namun menawan.
+                <option value="Mocha Mousse">Mocha Mousse: Warna cokelat berkilau yang bisa dikombinasikan dengan highlight atau balayage untuk menambah dimensi dan rona keemasan.
+                <option value="Cinnamon Brown">Cinnamon Brown: Nuansa merah dan cokelat hangat yang memberikan tampilan natural namun tetap berkilau dan hidup. Cocok untuk rambut cokelat yang ingin sentuhan lebih berani.
+                <option value="Warm Marigold">Warm Marigold: Perpaduan warna emas, tembaga, dan cokelat yang menawan, menghasilkan warna cokelat keemasan yang berkilau namun berkesan hangat.
+                <option value="Honey Brown">Honey Brown: Sentuhan lembut yang menyegarkan, memadukan warna emas dan karamel untuk efek sinar matahari alami.
+                <option value="Brunette Balayage">Brunette Balayage: Kombinasi cokelat hangat dengan sentuhan toffee atau highlight lembut yang tersebar, memberikan kedalaman dan dimensi.
+                <option value="Honey Brown">Honey Brown: Warna klasik yang tak lekang oleh waktu, terutama untuk memberikan efek glowing pada wajah.
+                <option value="Warm Chestnut Cinnamon">Warm Chestnut with Cinnamon: Memberikan kesan berani sekaligus elegan dengan nuansa kayu manis.
+            </optgroup>
+
+            <optgroup label="Nuansa Pirang (Blonde):">
+                <option value="After-sun Blonde">After-sun Blonde: Warna pirang yang tidak terlalu cerah, terlihat manis dan seolah baru berjemur di bawah sinar matahari. Terkesan alami, modern, dan dewasa.
+                <option value="Golden Blonde">Golden Blonde: Memberikan kilau hangat pada rambut, cocok untuk rambut dasar cokelat gelap hingga medium, menciptakan kontras yang cantik.
+                <option value="Ash Blonde">Ash Blonde: Memberikan sentuhan modern tanpa terlalu berani, menciptakan tampilan rambut yang lembut dan elegan. Cocok untuk menyegarkan tampilan dengan cara yang halus.
+                <option value="Timeless Blonde">Timeless Blonde: Perpaduan warna hangat dan lembut dengan highlight lembut, mengingatkan pada glamor Hollywood klasik.
+                <option value="Peachy Blonde">Peachy Blonde: Perpaduan pirang dan warna peach yang lembut, memberikan kesan cerah dan playful namun tetap natural.
+            </optgroup>
+
+            <optgroup label="Nuansa Merah dan Ungu:">
+                <option value="Cherry Cola">Cherry Cola: Perpaduan merah dan cokelat yang sempurna, memberikan tampilan multidimensi yang menarik dan berkesan elegan.
+                <option value="Dark Cherry">Dark Cherry: Menawarkan nuansa mewah dan dapat mempertegas fitur wajah.
+                <option value="Burgundy">Burgundy: Memberikan kontras yang menawan pada rambut hitam atau cokelat gelap, menambahkan kedalaman dan keanggunan.
+                <option value="Rose Gold">Rose Gold: Perpaduan pink dan pirang yang sempurna, menciptakan tampilan yang soft dan chic. Elegan dan feminin.
+                <option value="Red Garnet">Red Garnet: Terinspirasi dari warna bebatuan, memberikan kesan berani dan memikat tanpa perlu bleaching.
+                <option value="Terracotta Red">Terracotta Red: Perpaduan merah dan copper brown, lebih tone down dibandingkan merah menyala, cocok untuk kulit terang hingga medium.
+                <option value="Sunset Ombre">Sunset Ombre dengan Nuansa Merah dan Oranye: Gradasi warna yang memikat dari cokelat gelap di akar menuju merah intens dan oranye cerah di ujung, memberikan kesan berani dan trendi.
+            </optgroup>
+
+            <optgroup label="Warna Lainnya:">
+                <option value="Milk Tea Hair Color">Milk Tea Hair Color: Warna rambut yang elegan dan cocok untuk berbagai acara, membuat penampilan terlihat looks elegant dan chic.
+                <option value="Golden Silvers">Golden Silvers: Terlihat trendi, fresh, dan sedikit futuristik. Dengan sentuhan balayage atau highlight agar terlihat lebih berdimensi.
+                <option value="Lavender Gray">Lavender Gray: Campuran ungu lembut dan abu-abu, memberikan kesan misterius sekaligus elegan.
+                <option value="Smoky Bronze">Smoky Bronze: Warna dasar cokelat dengan sentuhan smoky, membuat penampilan terlihat lebih dewasa.
+            </optgroup></select>
+        </div>
+
+        <div class="form-group">
+            <label for="bodyType">6. Bentuk Tubuh:</label>
+            <select id="bodyType" class="rounded-lg">
+            <optgroup label="Wanita">
+                <option value="Ramping">Ramping: Mengacu pada tubuh yang kurus dan langsing, seringkali dengan sedikit massa otot atau lemak.</option>
+                <option value="Atletis">Atletis: Menunjukkan tubuh yang terbentuk dari olahraga</option>
+                <option value="Petite">Petite: Mengacu pada wanita dengan tinggi badan di bawah 160 cm terlepas dari berat badan mereka.</option>
+                <option value="Curvy">Curvy: tubuh dengan lekukan yang jelas, di mana pinggul dan dada menonjol.</option>
+                <option value="Chubby">Plus-size: bentuk tubuh yang lebih besar dari rata-rata.</option>
+                <option value="Proporsional">Proporsional: Mengacu pada keseimbangan atas dan bawah.</option>
+                <option value="Tinggi">Tinggi: Fokus pada tinggi badan yang di atas rata-rata.</option>
+                <option value="Kecil">Kecil: Mirip dengan petite, tetapi bisa juga mengacu pada kerangka tulang yang kecil.</option>
+            </optgroup>
+            <optgroup label="Pria">
+                <option value="Ramping">Ramping: Mengacu pada tubuh yang kurus dan langsing, seringkali dengan sedikit massa otot atau lemak.</option>
+                <option value="Berotot">Berotot: Menunjukkan tubuh dengan massa otot yang signifikan, hasil dari latihan beban.</option>
+                <option value="Atletis">Atletis: Mengacu pada tubuh yang bugar dan terbentuk dari aktivitas fisik.</option>
+                <option value="Kekar">Kekar: Tubuh yang sangat berotot dan besar.</option>
+                <option value="Berdada bidang">Berdada bidang : Fokus pada lebar bahu yang menonjol.</option>
+                <option value="Tinggi">Tinggi: Fokus pada tinggi badan yang di atas rata-rata.</option>
+            </optgroup>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="topWear">7. Pakaian Atas:</label>
+            <select id="topWear" class="rounded-lg">
+            <option value="">Tidak memilih</option>
+                <option value="kaos lengan pendek" selected>Kaos (T-shirt): Pakaian kasual berlengan pendek dengan kerah bulat atau V.</option>
+                <option value="kaos lengan pendek ketat dengan belahan dada rendah">Kaos ketat (T-shirt): Pakaian kasual berlengan pendek dengan kerah bulat atau V.</option>
+                <option value="kaos lengan panjang">Kaos (T-shirt): Pakaian kasual berlengan panjang dengan kerah bulat atau V.</option>
+                <option value="bra menyusui berwarna krem">Bra menyusui warna krem</option>
+                <option value="Kemeja">Kemeja: Pakaian formal atau kasual dengan kerah dan kancing di bagian depan. Bisa berlengan panjang atau pendek.</option>
+                <option value="Kemeja dengan 2 kancing atas terbuka">Kemeja dengan 2 kancing atas terbuka</option>
+                <option value="Blus">Blus: Pakaian atas wanita yang biasanya lebih longgar dan memiliki detail feminin seperti ruffle atau bordir.</option>
+                <option value="Polo Shirt">Polo Shirt</option>
+                <option value="Sweater">Sweater: Pakaian rajut tebal yang dikenakan di bagian atas, biasanya untuk menghangatkan badan.</option>
+                <option value="Hoodie dengan tudung kepala tertutup">Hoodie: Sweater dengan tudung kepala tertutup</option>
+                <option value="Hoodie dengan tudung kepala terbuka">Hoodie: Sweater dengan tudung kepala terbuka</option>
+                <option value="Jaket resleting tertutup rapat">Jaket tertutup rapat</option>
+                <option value="Jaket resleting tertutup setengah">Jaket tertutup setengah</option>
+                <option value="Jaket resleting terbuka">Jaket terbuka</option>
+                <option value="Rompi">Rompi: Pakaian tanpa lengan yang dikenakan di atas kemeja atau kaos.</option>
+                <option value="Crop Top">Crop Top: Pakaian atas yang pendek, biasanya memperlihatkan bagian perut.</option>
+                <option value="Tank Top dengan belahan dada terlihat">Tank Top: untuk hasil maksimal pilih tipe tubuh Curvy</option>
+                <option value="Cardigan">Cardigan: Jaket rajut tanpa kerah yang dibuka di bagian depan.</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="bottomWear">8. Pakaian Bawah:</label>
+            <select id="bottomWear" class="rounded-lg">    
+            <option value="">Tidak memilih</option>
+                <option value="Celana panjang Jeans skinny">Celana Jeans skinny</option>
+                <option value="celana panjang jeans straight">Celana Jeans straight</option>
+                <option value="celana panjang jeans bootcut">Celana Jeans bootcut</option>
+                <option value="celana panjang jeans flare">Celana Jeans flare</option>
+                <option value="celana panjang wide-leg">Celana Jeans wide-leg</option>
+                <option value="celana panjang mom jeans">Celana Jeans mom jeans</option>
+                <option value="celana panjang kain formal">Celana Kain formal untuk bekerja</option>
+                <option value="celana kain casual">Celana Kain casual untuk sehari-hari</option>
+                <option value="celana kain panjang olahraga">Celana Kain untuk olahraga</option>
+                <option value="Celana Chino semi-formal">Celana Chino semi-formal: Celana kasual yang sering terbuat dari katun twill</option>
+                <option value="Celana Chino kasual">Celana Chino kasual: Celana kasual yang sering terbuat dari katun twill</option>
+                <option value="Celana Kulot">Celana Kulot: Celana dengan potongan lebar dan panjang yang bervariasi, seringkali terlihat seperti rok saat dipakai.</option>
+                <option value="Celana Palazzo">Celana Palazzo: Celana dengan potongan sangat lebar dari pinggang hingga pergelangan kaki, memberikan siluet yang mengalir.</option>
+                <option value="Celana Jogger">Celana Jogger: Celana kasual yang longgar di bagian paha dan meruncing ke bawah dengan manset elastis di pergelangan kaki.</option>
+                <option value="Celana Cargo">Celana Cargo: Celana dengan saku besar di samping paha, memberikan tampilan utilitarian.</option>
+                <option value="Legging">Legging: Celana ketat yang elastis, sering digunakan untuk olahraga atau sebagai lapisan dalam pakaian.</option>
+                <option value="Rok Mini">Rok Mini: Rok dengan panjang di atas lutut.</option>
+                <option value="Rok Midi">Rok Midi: Rok dengan panjang antara lutut dan pergelangan kaki.</option>
+                <option value="Rok Maxi">Rok Maxi: Rok panjang hingga pergelangan kaki atau lantai.</option>
+                <option value="Rok Pensil">Rok Pensil: Rok ketat yang meruncing di bagian bawah.</option>
+                <option value="Rok A-Line">Rok A-Line: Rok yang melebar secara bertahap dari pinggang, membentuk huruf "A".</option>
+                <option value="Rok Pleated">Rok Pleated: Rok dengan lipatan-lipatan yang rapi.</option>
+                <option value="Celana Pendek Denim" selected>Celana Pendek Denim: Versi pendek dari celana jeans.</option>
+                <option value="Celana Pendek Bermudas">Celana Pendek Bermudas: Celana pendek yang panjangnya mencapai lutut atau sedikit di atas lutut.</option>
+                <option value="Celana Pendek Olahraga">Celana Pendek Olahraga: Dirancang khusus untuk aktivitas fisik.</option>
+                <option value="Celana Jumpsuit tanpa lengan tanpa bahu">Jumpsuit pakaian ini menggabungkan atasan dan bawahan menjadi satu potong, memiliki celana panjang, pastikan tidak memilih bagian atas</option>
+                <option value="Celana Playsuit tanpa lengan tanpa bahu">Playsuit pakaian ini menggabungkan atasan dan bawahan menjadi satu potong, memiliki celana pendek, pastikan tidak memilih bagian atas</option>
+            </select>
+        </div>
+
+        <!-- New Feature: Right Arm Action -->
+        <div class="form-group">
+            <label for="rightArmAction">9. Apa yang dilakukan tangan dan lengan kanan?</label>
+            <select id="rightArmAction" class="rounded-lg">
+                <option value="">Tidak memilih</option>
+                <option value="memegang tas">memegang tas</option>
+                <option value="memegang handphone">memegang handphone</option>
+                <option value="memegang botol minuman">memegang botol minuman</option>
+                <option value="memegang dagu">memegang dagu</option>
+                <option value="menunjuk ke atas">menunjuk ke atas</option>
+                <option value="menunjuk ke samping">menunjuk ke samping</option>
+                <option value="melambai">melambai</option>
+                <option value="bersedekap">bersedekap</option>
+                <option value="berpose di pinggang">berpose di pinggang</option>
+                <option value="mengangkat tangan">mengangkat tangan</option>
+                <option value="mengepal">mengepal</option>
+                <option value="terbuka">terbuka</option>
+                <option value="menopang kepala">menopang kepala</option>
+                <option value="memegang rambut">memegang rambut</option>
+            </select>
+        </div>
+
+        <!-- New Feature: Left Arm Action -->
+        <div class="form-group">
+            <label for="leftArmAction">10. Apa yang dilakukan tangan dan lengan kiri?</label>
+            <select id="leftArmAction" class="rounded-lg">
+                <option value="">Tidak memilih</option>
+                <option value="memegang tas">memegang tas</option>
+                <option value="memegang handphone">memegang handphone</option>
+                <option value="memegang botol minuman">memegang botol minuman</option>
+                <option value="memegang dagu">memegang dagu</option>
+                <option value="menunjuk ke atas">menunjuk ke atas</option>
+                <option value="menunjuk ke samping">menunjuk ke samping</option>
+                <option value="melambai">melambai</option>
+                <option value="bersedekap">bersedekap</option>
+                <option value="berpose di pinggang">berpose di pinggang</option>
+                <option value="mengangkat tangan">mengangkat tangan</option>
+                <option value="mengepal">mengepal</option>
+                <option value="terbuka">terbuka</option>
+                <option value="menopang kepala">menopang kepala</option>
+                <option value="memegang rambut">memegang rambut</option>
+            </select>
+        </div>
+
+        <!-- New Feature: Attached Accessories (Checkboxes) -->
+        <div class="form-group">
+            <label>11. Aksesoris yang menempel: (samakan dengan produk affiliate)</label>
+            <div class="checkbox-group">
+                <label><input type="checkbox" name="attachedAccessories" value="jam tangan"> Jam tangan</label>
+                <label><input type="checkbox" name="attachedAccessories" value="smartwatch"> Smartwatch</label>
+                <label><input type="checkbox" name="attachedAccessories" value="topi"> Topi</label>
+                <label><input type="checkbox" name="attachedAccessories" value="tas ransel"> Tas ransel</label>
+                <label><input type="checkbox" name="attachedAccessories" value="earphone wireless"> Earphone wireless</label>
+                <label><input type="checkbox" name="attachedAccessories" value="earphone dengan kabel"> Earphone kabel</label>
+				<label><input type="checkbox" name="attachedAccessories" value="seperti yang saya lampirkan, ">MODE LAMPIRAN</label>
+            </div>
+        </div>
+
+        <!-- New Feature: Earrings -->
+        <div class="form-group">
+            <label for="earrings">12. Anting:</label>
+            <select id="earrings" class="rounded-lg">
+                <option value="">Tidak memilih</option>
+                <option value="anting tusuk" selected>Anting Tusuk Bentuknya kecil dan menempel langsung di daun telinga, memberikan kesan minimalis dan praktis.</option>
+                <option value="anting lingkaran">Anting Lingkaran berbentuk lingkaran berbagai ukuran, dari kecil hingga besar.</option>
+                <option value="anting huggie">Anting Huggie ukurannya lebih kecil dan melingkar rapat memeluk daun telinga</option>
+                <option value="anting juntai">Anting Juntai menambah kesan berkelas dan anggun, cocok untuk acara formal.</option>
+                <option value="anting gantung">Anting Gantung mirip juntai namun ukurannya lebih panjang dan bisa berayun</option>
+                <option value="ear cuff">Ear Cuff melingkar di tepi telinga tanpa perlu ditindik</option>
+                <option value="anting barbel">Anting Barbel aka Piercing</option>
+            </select>
+        </div>
+
+        <!-- New Feature: Necklace -->
+        <div class="form-group">
+            <label for="necklace">13. Kalung:</label>
+            <select id="necklace" class="rounded-lg" onchange="togglePendantDropdown()">
+                <option value="">Tidak memilih</option>
+                <option value="kalung choker" selected>Kalung Choker pas di leher atau sedikit ketat, memberikan kesan modern dan edgy</option>
+                <option value="kalung collar">Kalung Collar dikenakan di area pertengahan leher dan biasanya lebih menonjolkan area tulang selangka (collarbone)</option>
+                <option value="kalung princess">Kalung Princess posisi sedikit di bawah leher. Kalung ini elegan dan cocok untuk acara formal</option>
+                <option value="kalung matinee">Kalung Matinee biasanya jatuh di atas dada. Gunakan belahan dada agar terlihat</option>
+                <option value="kalung opera">Kalung Opera sangat panjang, jatuh di bawah dada. Dapat dikenakan satu lilitan atau dililitkan dua kali untuk efek berlapis.</option>
+                <option value="kalung rope (lariat)">Kalung Rope sangat panjang, jatuh hingga pinggang</option>
+                <option value="kalung rantai">Kalung Rantai</option>
+                <option value="kalung berlapis">Kalung Berlapis Gabungan dari beberapa kalung dengan panjang berbeda</option>
+                <option value="kalung statement">Kalung Statement desain yang besar, mencolok, dan menjadi pusat perhatian dari penampilan.</option>
+            </select>
+        </div>
+
+        <!-- New Feature: Pendant (conditionally displayed) -->
+        <div class="form-group" id="pendantGroup" style="display: none;">
+            <label for="pendant">14. Liontin:</label>
+            <select id="pendant" class="rounded-lg">
+                <option value="">Tidak memilih</option>
+                <option value="liontin solitaire">Liontin Solitaire</option>
+                <option value="liontin halo">Liontin Halo</option>
+                <option value="liontin inisial/huruf">Liontin Huruf</option>
+                <option value="liontin nama">Liontin Nama</option>
+                <option value="liontin berbentuk hati">Liontin Berbentuk Hati</option>
+                <option value="liontin simbol">Liontin Simbol</option>
+                <option value="liontin batu permata">Liontin Batu Permata</option>
+                <option value="liontin locket">Liontin Locket</option>
+                <option value="liontin koin">Liontin Koin</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="additionalAccessories">15. Aksesoris Lain (opsional):</label>
+            <input type="text" id="additionalAccessories" placeholder="tas tangan, kacamata hitam, dll." class="rounded-lg">
+        </div>
+
+        <div class="form-group">
+            <label for="pose">16. Pose:</label>
+            <select id="pose" class="rounded-lg">
+                <option value="berjalan">Berjalan</option>
+                <option value="melompat">Melompat</option>
+                <option value="berpose santai">Berpose santai</option>
+                <optgroup label="Berdiri">
+                    <option value="berdiri tegak">Berdiri tegak</option>
+                    <option value="berdiri santai">Berdiri santai</option>
+                    <option value="berdiri bersandar">Berdiri bersandar (di dinding/tiang)</option>
+                    <option value="berdiri dengan satu kaki ditekuk">Berdiri dengan satu kaki ditekuk</option>
+                    <option value="berdiri melihat ke belakang">Berdiri melihat ke belakang</option>
+                    <option value="berdiri dari belakang">Berdiri dari belakang</option>
+                    <option value="berdiri dari depan">Berdiri dari depan</option>
+                    <option value="berdiri dari samping">Berdiri dari samping</option>
+                </optgroup>
+                <optgroup label="Duduk">
+                    <option value="duduk di lantai">Duduk di lantai (bersila, berlutut)</option>
+                    <option value="duduk di tanah/rumput">Duduk di tanah/rumput</option>
+                    <option value="duduk santai">Duduk santai</option>
+                    <option value="duduk tegak">Duduk tegak</option>
+                    <option value="duduk dengan kaki menyilang">Duduk dengan kaki menyilang</option>
+                    <option value="duduk bersandar">Duduk bersandar</option>
+                    <option value="duduk membaca">Duduk membaca</option>
+                    <option value="duduk di sofa">Duduk di sofa</option>
+                </optgroup>
+                <optgroup label="Pose Emosional/Ekspresif">
+                    <option value="tertawa dengan tangan di mulut">Tertawa (dengan tangan di mulut)</option>
+                    <option value="tertawa lepas">Tertawa lepas</option>
+                    <option value="menangis dengan tangan di wajah">Menangis (dengan tangan di wajah)</option>
+                    <option value="menangis menunduk">Menangis (menunduk)</option>
+                    <option value="berpikir dengan tangan di dagu">Berpikir (tangan di dagu, pandangan ke atas)</option>
+                    <option value="terkejut dengan mulut terbuka dan tangan di pipi">Terkejut (mulut terbuka, tangan di pipi)</option>
+                    <option value="marah dengan wajah tegang dan tangan mengepal">Marah (wajah tegang, tangan mengepal)</option>
+                    <option value="sedih menunduk dengan bahu merosot">Sedih (menunduk, bahu merosot)</option>
+                </optgroup>
+                <optgroup label="Pose Interaksi">
+                    <option value="berpelukan">Berpelukan</option>
+                    <option value="berpegangan tangan">Berpegangan tangan</option>
+                    <option value="berbicara dengan gesture">Berbicara (dengan gesture)</option>
+                    <option value="berpose bersama">Berpose bersama (group pose)</option>
+                </optgroup>
+                <optgroup label="Pose Spesifik">
+                    <option value="pose yoga downward dog">Pose yoga (downward dog pose)</option>
+                    <option value="pose yoga tree pose">Pose yoga (tree pose)</option>
+                    <option value="pose bela diri fighting stance">Pose bela diri (fighting stance)</option>
+                    <option value="pose bela diri kick pose">Pose bela diri (kick pose)</option>
+                    <option value="pose modeling fashion">Pose modeling (fashion pose)</option>
+                    <option value="pose modeling glamour">Pose modeling (glamour pose)</option>
+                    <option value="pose atletik running start">Pose atletik (running start)</option>
+                    <option value="pose atletik basketball shot">Pose atletik (basketball shot)</option>
+                </optgroup>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="background">17. Background:</label>
+			<select id="background" class="rounded-lg">
+			<optgroup label="Kamar tidur">
+                    <option value="kamar tidur">sederhana</option>
+					<option value="kamar tidur bergaya pedesaan">pedesaan</option>
+					<option value="kamar tidur estetik" selected>estetik</option>
+					<option value="kamar tidur futuristik">futuristik</option>
+					<option value="kamar tidur apartemen">apartemen</option>
+			</optgroup>
+			<optgroup label="Lokasi">		
+                    <option value="studio musik">studio musik</option>
+                    <option value="trotoar khas Jakarta">trotoar khas Jakarta</option>
+                    <option value="taman bunga">Taman bunga</option>
+					<option value="kota metropolitan modern">kota metropolitan modern</option>
+					<option value="gang sempit di kota tua">gang sempit di kota tua</option>
+					<option value="kafe yang ramai">kafe yang ramai</option>
+					<option value="perpustakaan klasik">perpustakaan klasik</option>
+					<option value="stadion olahraga">stadion olahraga</option>
+					<option value="bandara internasional">bandara internasional</option>
+					<option value="jalan kampung">jalan kampung</option>
+					<option value="pinggir sawah">pinggir sawah</option>
+					<option value="hutan lebat">hutan lebat</option>
+					<option value="padang pasir">padang pasir</option>
+					<option value="pegunungan bersalju">pegunungan bersalju</option>
+					<option value="gua gelap">gua gelap</option>
+					<option value="dapur bergaya pedesaan">dapur bergaya pedesaan</option>
+					<option value="lobi hotel mewah">lobi hotel mewah</option>
+            </optgroup>
+			<optgroup label="Fiktif">
+                    <option value="kota futuristik di planet lain">kota futuristik di planet lain</option>
+					<option value="kota masa depan">Kota-kota masa depan</option>
+					<option value="pesawat luar angkasa">pesawat luar angkasa</option>
+					<option value="laboratorium canggih">laboratorium canggih</option>
+					<option value="hutan ajaib">hutan ajaib</option>
+					<option value="kastil kuno">kastil kuno</option>
+					<option value="kota terapung">kota terapung</option>
+					<option value="dunia bawah laut yang penuh warna">bawah laut penuh warna</option>
+					<option value="bawah laut terumbu karang">bawah laut terumbu karang</option>
+					<option value="dimensi paralel yang aneh">dimensi paralel yang aneh</option>
+            </optgroup>
+			<optgroup label="Lokasi Bersejarah">
+                    <option value="Colosseum Roma">Colosseum Roma</option>
+					<option value="Tembok Besar Cina">Tembok Besar Cina</option>
+					<option value="Menara Eiffel Paris">Menara Eiffel Paris</option>
+					<option value="Piramida Giza">Piramida Giza</option>
+					<option value="Pegunungan Himalaya">Pegunungan Himalaya</option>
+					<option value="Pegunungan Alpen">Pegunungan Alpen</option>
+					<option value="Pantai Bondi Sydney">Pantai Bondi Sydney</option>
+					<option value="Jalan Shibuya Crossing Tokyo">Jalan Shibuya Crossing Tokyo</option>
+            </optgroup>
+			</select>
+            <!-- <input type="text" id="background" placeholder="taman, warna gelap, warna terang, perkotaan, dll." class="rounded-lg"> -->
+        </div>
+
+        <button onclick="generatePrompt()">Buat Prompt</button>
+
+        <!-- Container for output prompt and copy button -->
+        <div class="output-container">
+            <div id="outputPrompt">
+                Prompt Anda akan muncul di sini.
+            </div>
+            <button id="copyButton" onclick="copyPrompt()">Salin</button>
+        </div>
+    </div>
+
+    <script>
+        function generatePrompt() {
+            // Get values from existing fields
+            const gender = document.getElementById('gender').value;
+            const appearance = document.getElementById('appearance').value;
+            const skinColor = document.getElementById('skinColor').value;
+            const hairStyle = document.getElementById('hairStyle').value;
+            const hairColor = document.getElementById('hairColor').value.trim();
+            const bodyType = document.getElementById('bodyType').value;
+            const topWear = document.getElementById('topWear').value.trim();
+            const bottomWear = document.getElementById('bottomWear').value;
+            const additionalAccessories = document.getElementById('additionalAccessories').value.trim(); 
+            const pose = document.getElementById('pose').value;
+            const background = document.getElementById('background').value.trim();
+
+            // Get values for new features
+            const rightArmAction = document.getElementById('rightArmAction').value;
+            const leftArmAction = document.getElementById('leftArmAction').value;
+            
+            // Get selected attached accessories (checkboxes)
+            const attachedAccessoriesCheckboxes = document.querySelectorAll('input[name="attachedAccessories"]:checked');
+            const selectedAttachedAccessories = Array.from(attachedAccessoriesCheckboxes).map(cb => cb.value);
+
+            // Get new jewelry values
+            const earrings = document.getElementById('earrings').value;
+            const necklace = document.getElementById('necklace').value;
+            const pendant = document.getElementById('pendant').value;
+
+            // Start building the prompt
+            let prompt = `buatkan gambar seorang ${gender} ${appearance}`;
+
+            // Add skin color, hair style, hair color
+            let hairDescription = hairStyle;
+            // Only add hair color if hairColorGroup is visible (meaning a hijab is not selected)
+            if (hairColor && document.getElementById('hairColorGroup').style.display !== 'none') {
+                hairDescription = `${hairStyle} warna ${hairColor}`;
+            }
+            if (skinColor) { // Only add if a skin color is selected
+                prompt += ` ${skinColor}`;
+            }
+            prompt += `, rambut ${hairDescription}`;
+
+            // Add body type
+            prompt += `, bentuk tubuh ${bodyType}`;
+
+            // Add clothing
+            let clothingDescription = [];
+            if (topWear) {
+                clothingDescription.push(topWear);
+            }
+            if (bottomWear) {
+                clothingDescription.push(bottomWear);
+            }
+            if (clothingDescription.length > 0) {
+                prompt += `, mengenakan ${clothingDescription.join(' dan ')}`;
+            }
+
+            // Add arm actions
+            if (rightArmAction && rightArmAction !== 'Tidak memilih') {
+                prompt += `, tangan kanan ${rightArmAction}`;
+            }
+            if (leftArmAction && leftArmAction !== 'Tidak memilih') {
+                prompt += `, tangan kiri ${leftArmAction}`;
+            }
+
+            // Add attached accessories (checkboxes)
+            if (selectedAttachedAccessories.length > 0) {
+                prompt += `, memakai ${selectedAttachedAccessories.join(', ')}`;
+            }
+
+            // Add earrings
+            if (earrings) {
+                if (selectedAttachedAccessories.length > 0 || additionalAccessories) {
+                    prompt += `, dan ${earrings}`;
+                } else {
+                    prompt += `, memakai ${earrings}`;
+                }
+            }
+
+            // Add necklace and pendant
+            if (necklace) {
+                let necklaceText = necklace;
+                if (pendant && necklace !== 'Tidak memilih') { // Only add pendant if necklace is chosen
+                    necklaceText += ` dengan ${pendant}`;
+                }
+                if (selectedAttachedAccessories.length > 0 || additionalAccessories || earrings) {
+                    prompt += `, dan ${necklaceText}`;
+                } else {
+                    prompt += `, memakai ${necklaceText}`;
+                }
+            }
+
+            // Add additional accessories (text input)
+            if (additionalAccessories) {
+                // If there were any other accessories (attached, earrings, necklace), add "dan", otherwise "memakai"
+                if (selectedAttachedAccessories.length > 0 || earrings || necklace) {
+                    prompt += `, dan ${additionalAccessories}`;
+                } else {
+                    prompt += `, memakai ${additionalAccessories}`;
+                }
+            }
+
+            // Add pose and background
+            prompt += ` sedang ${pose} di ${background}.`;
+
+            document.getElementById('outputPrompt').innerText = prompt;
+        }
+
+        // Function to copy the generated prompt to clipboard
+        function copyPrompt() {
+            const outputPrompt = document.getElementById('outputPrompt');
+            const textToCopy = outputPrompt.innerText;
+
+            // Use document.execCommand('copy') for clipboard operations in iframes
+            const textarea = document.createElement('textarea');
+            textarea.value = textToCopy;
+            textarea.style.position = 'fixed'; // Prevent scrolling to bottom of page
+            textarea.style.left = '-9999px'; // Move off-screen
+            document.body.appendChild(textarea);
+            textarea.select();
+            try {
+                document.execCommand('copy');
+                // Replace alert with a custom message box or visual feedback
+                showNotification('Prompt berhasil disalin!'); 
+            } catch (err) {
+                console.error('Gagal menyalin prompt: ', err);
+                showNotification('Gagal menyalin prompt. Silakan salin secara manual.');
+            } finally {
+                document.body.removeChild(textarea);
+            }
+        }
+
+        // Custom notification function (replaces alert)
+        function showNotification(message) {
+            const notification = document.createElement('div');
+            notification.innerText = message;
+            notification.style.cssText = `
+                position: fixed;
+                bottom: 20px;
+                left: 50%;
+                transform: translateX(-50%);
+                background-color: #333;
+                color: white;
+                padding: 10px 20px;
+                border-radius: 8px;
+                z-index: 1000;
+                opacity: 0;
+                transition: opacity 0.5s ease-in-out;
+            `;
+            document.body.appendChild(notification);
+
+            setTimeout(() => {
+                notification.style.opacity = '1';
+            }, 10); // Small delay to trigger transition
+
+            setTimeout(() => {
+                notification.style.opacity = '0';
+                notification.addEventListener('transitionend', () => notification.remove());
+            }, 1000); // Hide after 1 seconds
+        }
+
+        // Function to toggle pendant dropdown visibility
+        function togglePendantDropdown() {
+            const necklaceSelect = document.getElementById('necklace');
+            const pendantGroup = document.getElementById('pendantGroup');
+            if (necklaceSelect.value === "") {
+                pendantGroup.style.display = 'none';
+                document.getElementById('pendant').value = ""; // Reset pendant selection
+            } else {
+                pendantGroup.style.display = 'block';
+            }
+        }
+
+        // Function to toggle hair color dropdown visibility based on hair style
+        function toggleHairColorDropdown() {
+            const hairStyleSelect = document.getElementById('hairStyle');
+            const hairColorGroup = document.getElementById('hairColorGroup');
+            const selectedOption = hairStyleSelect.options[hairStyleSelect.selectedIndex];
+            const optgroupLabel = selectedOption.parentNode.getAttribute('label');
+
+            if (optgroupLabel === 'Hijab') {
+                hairColorGroup.style.display = 'none';
+                document.getElementById('hairColor').value = ""; // Reset hair color selection
+            } else {
+                hairColorGroup.style.display = 'block';
+            }
+        }
+
+        // Initial call to set correct state on page load
+        document.addEventListener('DOMContentLoaded', toggleHairColorDropdown);
+    </script>
+</body>
+</html>

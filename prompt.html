@@ -154,10 +154,10 @@
 				<option value="wanita Malayan Mongoloid umur sekitar 30 tahun">Wanita Malayan Mongoloid 30</option>
                 <option value="wanita Malayan Mongoloid umur sekitar 40 tahun">Wanita Malayan Mongoloid 40</option>
 				<option value="wanita Malayan Mongoloid umur sekitar 50 tahun">Wanita Malayan Mongoloid 50</option>
-                <option value="wanita Asiatic Mongoloid umur sekitar 20 tahun">Wanita Cina 20</option>
-				<option value="wanita Asiatic Mongoloid umur sekitar 30 tahun">Wanita Cina 30</option>
-                <option value="wanita Asiatic Mongoloid umur sekitar 40 tahun">Wanita Cina 40</option>
-				<option value="wanita Asiatic Mongoloid umur sekitar 50 tahun">Wanita Cina 50</option>			
+                <option value="wanita Asiatic Mongoloid umur sekitar 20 tahun">Wanita Chindo 20</option>
+				<option value="wanita Asiatic Mongoloid umur sekitar 30 tahun">Wanita Chindo 30</option>
+                <option value="wanita Asiatic Mongoloid umur sekitar 40 tahun">Wanita Chindo 40</option>
+				<option value="wanita Asiatic Mongoloid umur sekitar 50 tahun">Wanita Chindo 50</option>			
                 <option value="wanita American Mongoloid umur sekitar 20 tahun">Wanita Blasteran 20</option>
 				<option value="wanita American Mongoloid umur sekitar 30 tahun">Wanita Blasteran 30</option>
                 <option value="wanita American Mongoloid umur sekitar 40 tahun">Wanita Blasteran 40</option>
@@ -173,7 +173,15 @@
             <label for="appearance">2. Penampilan:</label>
             <select id="appearance" class="rounded-lg">
                 <option value=",berparas cantik">Cantik</option>
-                <option value="ganteng">Ganteng</option>
+				<option value=",berparas cantik dengan kacamata aviator">Cantik + kacamata Aviator (klasik, stylish)</option>
+				<option value=",berparas cantik dengan kacamata cat-Eye">Cantik + kacamata Cat-Eye (feminin, elegan, retro)</option>
+				<option value=",berparas cantik dengan kacamata bulat">Cantik + kacamata Bulat (tampilan vintage, intelektual, minimalis)</option>
+				<option value=",berparas cantik dengan kacamata persegi">Cantik + kacamata Persegi (berani, edgy)</option>
+				<option value=",berparas cantik dengan kacamata persegi panjang">Cantik + kacamata Persegi panjang(sederhana, elegan)</option>
+                <option value=",berparas cantik dengan kacamata oversized">Cantik + kacamata Oversized (kuat, dramatis,fashion-forward)</option>
+				<option value=",berparas cantik dengan kacamata geometris">Cantik + kacamata Geometris (edgy, modern)</option>
+				<option value=",berparas cantik dengan kacamata browline">Cantik + kacamata Browline-Tebal atas (klasik, cerdas)</option>
+				<option value="ganteng">Ganteng</option>
                 <option value=",gaya korea">Gaya korea</option>
                 <option value="dengan make up natural">Make up natural</option>
             </select>
@@ -196,8 +204,8 @@
                 <option value="bob">Bob: rambut pendek di mana rambut dipotong rata di sekitar kepala, biasanya setinggi dagu atau sedikit di bawahnya.</option>
                 <option value="pixie cut">Pixie Cut: sangat pendek, biasanya dipotong di atas telinga dan tengkuk.</option>
                 <option value="long bob">Lob (Long Bob): Versi bob yang lebih panjang, seringkali mencapai bahu.</option>
-                <option value="rambut panjang lurus" selected>Rambut Panjang Lurus</option>
-                <option value="rambut panjang bergelombang">Rambut Panjang Bergelombang</option>
+                <option value="panjang lurus" selected>Rambut Panjang Lurus</option>
+                <option value="panjang bergelombang">Rambut Panjang Bergelombang</option>
                 <option value="layered cut">Layered : dipotong dengan panjang yang bervariasi untuk menambah volume dan tekstur.</option>
                 <option value="shag">Shag: Gaya rambut berlapis dengan banyak tekstur, biasanya dengan poni</option>
                 <option value="poni">Poni (Bangs/Fringe): Rambut di dahi dipotong lebih pendek. Poni bisa lurus, samping, tirai (curtain bangs), atau berantakan.</option>
@@ -473,12 +481,9 @@
         <div class="form-group">
             <label for="pose">16. Pose:</label>
             <select id="pose" class="rounded-lg">
-                <option value="berjalan">Berjalan</option>
-                <option value="melompat">Melompat</option>
-                <option value="berpose santai">Berpose santai</option>
                 <optgroup label="Berdiri">
                     <option value="berdiri tegak">Berdiri tegak</option>
-                    <option value="berdiri santai">Berdiri santai</option>
+                    <option value="berdiri santai" selected>Berdiri santai</option>
                     <option value="berdiri bersandar">Berdiri bersandar (di dinding/tiang)</option>
                     <option value="berdiri dengan satu kaki ditekuk">Berdiri dengan satu kaki ditekuk</option>
                     <option value="berdiri melihat ke belakang">Berdiri melihat ke belakang</option>
@@ -513,6 +518,7 @@
                     <option value="berpose bersama">Berpose bersama (group pose)</option>
                 </optgroup>
                 <optgroup label="Pose Spesifik">
+					<option value="melompat">Melompat</option>
                     <option value="pose yoga downward dog">Pose yoga (downward dog pose)</option>
                     <option value="pose yoga tree pose">Pose yoga (tree pose)</option>
                     <option value="pose bela diri fighting stance">Pose bela diri (fighting stance)</option>
@@ -529,11 +535,11 @@
             <label for="background">17. Background:</label>
 			<select id="background" class="rounded-lg">
 			<optgroup label="Kamar tidur">
-                    <option value="kamar tidur">sederhana</option>
-					<option value="kamar tidur bergaya pedesaan">pedesaan</option>
-					<option value="kamar tidur estetik" selected>estetik</option>
-					<option value="kamar tidur futuristik">futuristik</option>
-					<option value="kamar tidur apartemen">apartemen</option>
+                    <option value="kamar tidur">kamar sederhana</option>
+					<option value="kamar tidur bergaya pedesaan">kamar pedesaan</option>
+					<option value="kamar tidur estetik" selected>kamar estetik</option>
+					<option value="kamar tidur futuristik">kamar futuristik</option>
+					<option value="kamar tidur apartemen">kamar apartemen</option>
 			</optgroup>
 			<optgroup label="Lokasi">		
                     <option value="studio musik">studio musik</option>
